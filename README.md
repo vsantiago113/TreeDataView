@@ -1,2 +1,2 @@
-# TkTable
+# TreeDataView
 This is a table for Tkinter using a ttk TreeView.
