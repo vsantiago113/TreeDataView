@@ -15,7 +15,7 @@ else:
 
 def main():
     root = tk.Tk()
-    root.wm_title('DataTreeView as a Table')
+    root.wm_title('TreeDataView as a Table')
 
     def callback(event):
         rowid = tdv1.identify_row(event.y)
@@ -32,22 +32,33 @@ def main():
 
     def get_row_data():
         selected_row = tdv1.selection()
+        prev_item = tdv1.prev(selected_row)
         text = tdv1.item(selected_row, 'values')
+        tags = tdv1.item(prev_item, 'tags')
+        if tags:
+            print(tags[0])
+        else:
+            pass
         print(text)
+
+    def delete_row():
+        selected_row = tdv1.selection()
+        tdv1.delete(selected_row)
 
     menu = tk.Menu(root, tearoff=0)
     menu.add_command(label='Print row', command=get_row_data)
     menu.add_command(label='Add', command=None)
     menu.add_command(label='Edit', command=None)
-    menu.add_command(label='Delete', command=None)
+    menu.add_command(label='Delete', command=delete_row)
 
-    def RightClick(event):
+    def mymenu(event):
         row_id = tdv1.identify_row(event.y)
         tdv1.selection_set(row_id)
         menu.post(event.x_root, event.y_root)
 
     tree_columns = ['Name', 'Phone', 'Email', 'Company', 'Date']
-    tdv1 = TreeDataView(root, tree_columns, horizontal=True, vertical=True, Double_Button_1=callback, Button_3=RightClick)
+    tdv1 = TreeDataView(root, tree_columns, scrollbar_x=True, scrollbar_y=True, double_click=callback,
+                        right_click=mymenu, table_striped=True)
     tdv1.pack(fill='both', expand=1)
 
     def insert_data():
@@ -63,7 +74,8 @@ def main():
         email = '{}@{}'.format(name[0].lower() + name.split()[-1].lower(), company.replace(' ', '').lower())
 
         # Now lets insert a row with random data into the table.
-        tdv1.insert('', 'end', values=(name, phone, email, company, date))
+        new_item = tdv1.insert('', 'end', values=(name, phone, email, company, date))
+        tdv1.table_set_striped(new_item)
 
     button1 = ttk.Button(root, text='Insert random data', command=insert_data)
     button1.pack(side='bottom')
@@ -71,4 +83,5 @@ def main():
     root.mainloop()
 
 
-main()
+if __name__ == '__main__':
+    main()

@@ -8,20 +8,39 @@ except ImportError:
     import tkinter as tk
     from tkinter import ttk, font
 
+
 class TreeDataView(tk.Frame):
-    def __init__(self, master, tree_columns, height=False, horizontal=True, vertical=True, selectmode=None, Button_1=None, Button_3=None, Double_Button_1=None, Return=None, **options):
+    def __init__(self, master, headers, height=False, scrollbar_x=True, scrollbar_y=True, selectmode=None,
+                 left_click=None, right_click=None, double_click=None, return_key=None, table_striped=False, **options):
 
         tk.Frame.__init__(self, master)
+        self.table_striped = table_striped
 
         def sortby(tree, col, descending):
-            '''Sort tree contents when a column is clicked on.'''
+            # Sort tree contents when a column is clicked on.
             # grab values to sort
             data = [(tree.set(child, col), child) for child in tree.get_children('')]
 
             # reorder data
             data.sort(reverse=descending)
+            num = 'Even'
             for indx, item in enumerate(data):
                 tree.move(item[1], '', indx)
+
+                if bool(self.table_striped) is True:
+                    if num == 'Even':
+                        tree.item(item[1], tags=('evenrow',))
+                        num = 'Odd'
+                    elif num == 'Odd':
+                        tree.item(item[1], tags=('oddrow',))
+                        num = 'Even'
+                else:
+                    pass
+            if bool(self.table_striped) is True:
+                tree.tag_configure('evenrow', background='#FFF')
+                tree.tag_configure('oddrow', background='#EAECEE')
+            else:
+                pass
 
             # switch the heading so that it will sort in the opposite direction
             tree.heading(col, command=lambda col=col: sortby(tree, col, int(not descending)))
@@ -29,49 +48,60 @@ class TreeDataView(tk.Frame):
         container = tk.Frame(self)
         container.pack(fill='both', expand=True)
 
-        if selectmode == None:
+        if selectmode is None:
             mode = 'extended'
         else:
             mode = selectmode
-        self.tree = ttk.Treeview(container, columns=tree_columns, show='headings', selectmode=mode)
+        self.tree = ttk.Treeview(container, columns=headers, show='headings', selectmode=mode)
         vsb = ttk.Scrollbar(container, orient='vertical', command=self.tree.yview)
         hsb = ttk.Scrollbar(container, orient='horizontal', command=self.tree.xview)
         self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
         self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
 
-        if height == False:
-            pass
-        else:
+        if bool(height) is True:
             self.tree.configure(height=height)
+        else:
+            pass
         
-        if vertical == True:
+        if bool(scrollbar_y) is True:
             vsb.grid(column=1, row=0, sticky='ns', in_=container)
+        else:
+            pass
             
-        if horizontal == True:
+        if bool(scrollbar_x) is True:
             hsb.grid(column=0, row=1, sticky='ew', in_=container)
+        else:
+            pass
 
         container.grid_columnconfigure(0, weight=1)
         container.grid_rowconfigure(0, weight=1)
 
-        for col in tree_columns:
-            self.tree.heading(col, text=col, anchor='w',
-                command=lambda c=col: sortby(self.tree, c, 0))
+        for col in headers:
+            self.tree.heading(col, text=col, anchor='w', command=lambda c=col: sortby(self.tree, c, 0))
             self.tree.column(col, width=font.Font().measure(col.title()))
 
-        if Button_1:
-            self.tree.bind('<Button-1>', Button_1)
+        if left_click:
+            self.tree.bind('<Button-1>', left_click)
+        else:
+            pass
 
-        if Double_Button_1:
-            self.tree.bind('<Double-Button-1>', Double_Button_1)
+        if double_click:
+            self.tree.bind('<Double-Button-1>', double_click)
+        else:
+            pass
 
-        if Button_3:
-            self.tree.bind('<Button-3>', Button_3)
+        if right_click:
+            self.tree.bind('<Button-3>', right_click)
+        else:
+            pass
 
-        if Return:
-            self.tree.bind('<Return>', Return)
+        if return_key:
+            self.tree.bind('<Return>', return_key)
+        else:
+            pass
             
-        for index, col in enumerate(tree_columns):
-            self.tree.column(tree_columns[index], minwidth=50, stretch=True)
+        for index, col in enumerate(headers):
+            self.tree.column(headers[index], minwidth=50, stretch=True)
 
     # Build in functions for ttk.TreeView
     def bbox(self, *arg, **kw):
@@ -188,3 +218,30 @@ class TreeDataView(tk.Frame):
         for item in self.tree.get_children():
             items.append(self.tree.item(item, 'values'))
         return items
+
+    def table_set_striped(self, new_item):
+        num = 'Even'
+        if bool(self.table_striped) is True:
+            prev_item = self.prev(new_item)
+            if prev_item:
+                tags = self.item(prev_item, 'tags')
+                if tags:
+                    tag = tags[0]
+                    if tag == 'evenrow':
+                        num = 'Odd'
+                    else:
+                        pass
+                else:
+                    num = 'Even'
+            else:
+                num = 'Even'
+
+            if num == 'Odd':
+                self.item(new_item, tags=('oddrow',))
+            else:
+                self.item(new_item, tags=('evenrow',))
+
+            self.tag_configure('evenrow', background='#FFF')
+            self.tag_configure('oddrow', background='#EAECEE')
+        else:
+            pass
