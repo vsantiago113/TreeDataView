@@ -57,8 +57,7 @@ def main():
         menu.post(event.x_root, event.y_root)
 
     tree_columns = ['Name', 'Phone', 'Email', 'Company', 'Date']
-    tdv1 = TreeDataView(root, tree_columns, scrollbar_x=True, scrollbar_y=True, double_click=callback,
-                        right_click=mymenu, table_striped=True)
+    tdv1 = TreeDataView(root, tree_columns, scrollbar_x=True, scrollbar_y=True, double_click=callback)
     tdv1.pack(fill='both', expand=1)
 
     def insert_data():
