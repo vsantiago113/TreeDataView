@@ -81,7 +81,7 @@ class TreeDataView(tk.Frame):
             self.tree.column(col, width=font.Font().measure(col.title()))
 
         if left_click:
-            self.tree.bind('<Button-1>', left_click)
+            self.tree.bind('<<TreeviewSelect>>', left_click)
         else:
             pass
 
