@@ -1,23 +1,18 @@
 import sys
 from TreeDataView import TreeDataView
 import random
+import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox
 
-if sys.version_info.major == 2:
-    import Tkinter as tk
-    import ttk
-elif sys.version_info.major == 3:
-    import tkinter as tk
-    from tkinter import ttk
-else:
-    print('This version of Python is not supported!')
-    sys.exit(1)
+my_event = None
 
 
 def main():
     root = tk.Tk()
     root.wm_title('TreeDataView as a Table')
 
-    def callback(event):
+    def double_click(event):
         rowid = tdv1.identify_row(event.y)
         column = tdv1.identify_column(event.x)
         selitems = tdv1.selection()
@@ -29,6 +24,26 @@ def main():
             print('Row data:', text)
             print('Clicked on Cell:', cell)
             print('Cell data:', text[cell])
+
+    def right_click_func():
+        global my_event
+        column = tdv1.identify_column(my_event.x)
+        selitem = tdv1.selection()
+        if selitem:
+            text = tdv1.item(selitem[0], 'values')
+            cell = int(column[1]) - 1
+            my_event = None
+            print(text)
+            print(cell)
+        else:
+            messagebox.showwarning('Warning', 'Please make a selection and try again!')
+
+    def popup_menu(event):
+        global my_event
+        my_event = event
+        row_id = tdv1.identify_row(event.y)
+        tdv1.selection_set(row_id)
+        right_click_menu.post(event.x_root, event.y_root)
 
     def get_row_data():
         selected_row = tdv1.selection()
@@ -51,13 +66,23 @@ def main():
     menu.add_command(label='Edit', command=None)
     menu.add_command(label='Delete', command=delete_row)
 
+    # Right Click Pop-up Menu
+    right_click_menu = tk.Menu(root, tearoff=0)
+    right_click_menu.add_command(label='Item1', command=right_click_func)
+    right_click_menu.add_command(label='Item2', command=None)
+    right_click_sub_menu = tk.Menu(right_click_menu, tearoff=0)
+    right_click_menu.add_cascade(label='Sub-Menu', menu=right_click_sub_menu)
+    right_click_sub_menu.add_command(label='Sub Item1', command=None)
+    right_click_sub_menu.add_command(label='Sub Item2', command=None)
+
     def mymenu(event):
         row_id = tdv1.identify_row(event.y)
         tdv1.selection_set(row_id)
         menu.post(event.x_root, event.y_root)
 
     tree_columns = ['Name', 'Phone', 'Email', 'Company', 'Date']
-    tdv1 = TreeDataView(root, tree_columns, scrollbar_x=True, scrollbar_y=True, double_click=callback)
+    tdv1 = TreeDataView(root, tree_columns, scrollbar_x=True, scrollbar_y=True, double_click=double_click,
+                        right_click=popup_menu)
     tdv1.pack(fill='both', expand=1)
 
     def insert_data():
