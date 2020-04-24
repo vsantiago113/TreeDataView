@@ -4,6 +4,7 @@ import random
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
+import pyperclip
 
 my_event = None
 
@@ -11,6 +12,18 @@ my_event = None
 def main():
     root = tk.Tk()
     root.wm_title('TreeDataView as a Table')
+
+    def copy_to_clipboard():
+        global my_event
+        column = tdv1.identify_column(my_event.x)
+        selitem = tdv1.selection()
+        if selitem:
+            text = tdv1.item(selitem[0], 'values')
+            cell = int(column[1]) - 1
+            my_event = None
+            pyperclip.copy(text[cell])
+        else:
+            messagebox.showwarning('Warning', 'Please make a selection and try again!')
 
     def double_click(event):
         rowid = tdv1.identify_row(event.y)
@@ -68,12 +81,13 @@ def main():
 
     # Right Click Pop-up Menu
     right_click_menu = tk.Menu(root, tearoff=0)
+    right_click_menu.add_command(label='Copy', command=copy_to_clipboard)
     right_click_menu.add_command(label='Item1', command=right_click_func)
-    right_click_menu.add_command(label='Item2', command=None)
+    right_click_menu.add_command(label='Item2', command=right_click_func)
     right_click_sub_menu = tk.Menu(right_click_menu, tearoff=0)
     right_click_menu.add_cascade(label='Sub-Menu', menu=right_click_sub_menu)
-    right_click_sub_menu.add_command(label='Sub Item1', command=None)
-    right_click_sub_menu.add_command(label='Sub Item2', command=None)
+    right_click_sub_menu.add_command(label='Sub Item1', command=right_click_func)
+    right_click_sub_menu.add_command(label='Sub Item2', command=right_click_func)
 
     def mymenu(event):
         row_id = tdv1.identify_row(event.y)
