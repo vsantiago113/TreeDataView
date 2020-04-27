@@ -1,20 +1,12 @@
-try:
-    # Python 2.7
-    import Tkinter as tk
-    import ttk
-    import tkFont as font
-except ImportError:
-    # Python 3
-    import tkinter as tk
-    from tkinter import ttk, font
+import tkinter as tk
+from tkinter import ttk, font
 
 
 class TreeDataView(tk.Frame):
     def __init__(self, master, headers, height=False, scrollbar_x=True, scrollbar_y=True, selectmode=None,
-                 left_click=None, right_click=None, double_click=None, return_key=None, table_striped=False, **options):
+                 left_click=None, right_click=None, double_click=None, return_key=None, **options):
 
         tk.Frame.__init__(self, master)
-        self.table_striped = table_striped
 
         def sortby(tree, col, descending):
             # Sort tree contents when a column is clicked on.
@@ -23,27 +15,11 @@ class TreeDataView(tk.Frame):
 
             # reorder data
             data.sort(reverse=descending)
-            num = 'Even'
             for indx, item in enumerate(data):
                 tree.move(item[1], '', indx)
 
-                if bool(self.table_striped) is True:
-                    if num == 'Even':
-                        tree.item(item[1], tags=('evenrow',))
-                        num = 'Odd'
-                    elif num == 'Odd':
-                        tree.item(item[1], tags=('oddrow',))
-                        num = 'Even'
-                else:
-                    pass
-            if bool(self.table_striped) is True:
-                tree.tag_configure('evenrow', background='#FFF')
-                tree.tag_configure('oddrow', background='#EAECEE')
-            else:
-                pass
-
             # switch the heading so that it will sort in the opposite direction
-            tree.heading(col, command=lambda col=col: sortby(tree, col, int(not descending)))
+            tree.heading(col, command=lambda func=col: sortby(tree, col, int(not descending)))
 
         container = tk.Frame(self)
         container.pack(fill='both', expand=True)
@@ -60,47 +36,33 @@ class TreeDataView(tk.Frame):
 
         if bool(height) is True:
             self.tree.configure(height=height)
-        else:
-            pass
         
         if bool(scrollbar_y) is True:
             vsb.grid(column=1, row=0, sticky='ns', in_=container)
-        else:
-            pass
             
         if bool(scrollbar_x) is True:
             hsb.grid(column=0, row=1, sticky='ew', in_=container)
-        else:
-            pass
 
         container.grid_columnconfigure(0, weight=1)
         container.grid_rowconfigure(0, weight=1)
 
-        for col in headers:
-            self.tree.heading(col, text=col, anchor='w', command=lambda c=col: sortby(self.tree, c, 0))
-            self.tree.column(col, width=font.Font().measure(col.title()))
+        for column in headers:
+            self.tree.heading(column, text=column, anchor='w', command=lambda c=column: sortby(self.tree, c, 0))
+            self.tree.column(column, width=font.Font().measure(column.title()))
 
         if left_click:
             self.tree.bind('<<TreeviewSelect>>', left_click)
-        else:
-            pass
 
         if double_click:
             self.tree.bind('<Double-Button-1>', double_click)
-        else:
-            pass
 
         if right_click:
             self.tree.bind('<Button-3>', right_click)
-        else:
-            pass
 
         if return_key:
             self.tree.bind('<Return>', return_key)
-        else:
-            pass
             
-        for index, col in enumerate(headers):
+        for index, _ in enumerate(headers):
             self.tree.column(headers[index], minwidth=50, stretch=True)
 
     # Build in functions for ttk.TreeView
@@ -173,8 +135,8 @@ class TreeDataView(tk.Frame):
     def see(self, *arg):
         self.tree.see(*arg)
 
-    def selection(self, **kwargs):
-        return self.tree.selection(**kwargs)
+    def selection(self):
+        return self.tree.selection()
 
     def selection_set(self, *args):
         self.tree.selection_set(*args)
@@ -206,8 +168,6 @@ class TreeDataView(tk.Frame):
     # Custom Functions
     def insert_data(self, data):
         self.tree.insert('', 'end', values=data)
-        data = None
-        del data
 
     def clear(self): 
         for item in self.tree.get_children():
@@ -218,30 +178,3 @@ class TreeDataView(tk.Frame):
         for item in self.tree.get_children():
             items.append(self.tree.item(item, 'values'))
         return items
-
-    def table_set_striped(self, new_item):
-        num = 'Even'
-        if bool(self.table_striped) is True:
-            prev_item = self.prev(new_item)
-            if prev_item:
-                tags = self.item(prev_item, 'tags')
-                if tags:
-                    tag = tags[0]
-                    if tag == 'evenrow':
-                        num = 'Odd'
-                    else:
-                        pass
-                else:
-                    num = 'Even'
-            else:
-                num = 'Even'
-
-            if num == 'Odd':
-                self.item(new_item, tags=('oddrow',))
-            else:
-                self.item(new_item, tags=('evenrow',))
-
-            self.tag_configure('evenrow', background='#FFF')
-            self.tag_configure('oddrow', background='#EAECEE')
-        else:
-            pass

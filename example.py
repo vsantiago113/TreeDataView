@@ -113,7 +113,6 @@ def main():
 
         # Now lets insert a row with random data into the table.
         new_item = tdv1.insert('', 'end', values=(name, phone, email, company, date))
-        tdv1.table_set_striped(new_item)
 
     button1 = ttk.Button(root, text='Insert random data', command=insert_data)
     button1.pack(side='bottom')
