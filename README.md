@@ -28,7 +28,7 @@ class TreeDataView(master, headers, height=False, scrollbar_x=True, scrollbar_y=
 #### How to create a table.
 ```python
 from TreeDataView import TreeDataView
-import Tkinter as tk
+import tkinter as tk
 
 def main():
     root = tk.Tk()
